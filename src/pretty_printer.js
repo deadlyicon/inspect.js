@@ -14,35 +14,30 @@
     return '"'+this.toString()+'"';
   };
   Number.prototype.toPrettyString = Number.prototype.toString;
-
+  Function.prototype.toPrettyString = function(){
+    var as_string = Function.prototype.toString.call(this);
+    return as_string.match(/\[native code\]/) ? this.name : as_string;
+  };
 
   Object.toPrettyString = function(object){
+    // a special case
+    if (object === Object)     return 'Object';
+
     // primatives
-    if (object === null)  return 'null';
-    if (object === true)  return 'true';
-    if (object === false) return 'false';
+    if (object === undefined)  return 'undefined';
+    if (object === null)       return 'null';
+    if (object === true)       return 'true';
+    if (object === false)      return 'false';
     if (object.toPrettyString) return object.toPrettyString();
-    // var type = typeof(object);
-    // if (type === "string") return '"'+object+'"';
-    // if (type === "number") return ''+object;
 
+    // Not Plain Objects
+    var type = Object.prototype.toString.call(object);
+    if (type !== "[object Object]") return type;
 
-    // if (type === "object"){
-    //   var type = Object.prototype.toString.call(object);
-    //   return type;
-    //   // if (type = '[object Array]') return object
-    //   // if (type = '"[object HTMLBodyElement]"') return
-    // }
-
+    // Plain Objects
     var pairs = [];
-
-    for (var p in object)
-      pairs.push(p+': '+Object.toPrettyString(object[p]));
-
+    for (var p in object) pairs.push(p+':'+Object.toPrettyString(object[p]));
     return '{' + pairs.join(', ') + '}';
-
-
-    return 'unknown';
   }
 
   var print = (typeof console !== "undefined" && typeof console.log === "function") ? console.log : this.print || function(){};
