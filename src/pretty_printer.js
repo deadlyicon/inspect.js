@@ -1,14 +1,23 @@
 // Pretty Printer
 (function() {
 
-  Array.prototype.toPrettyString = function(continue_recursing){
-    var values_as_pretty_string = [];
+  function plainObjectToPrettyString(reset){
+    if (Object.toPrettyString.objects.indexOf(this) > -1) return '{...}';
+    Object.toPrettyString.objects.push(this);
 
-    for (var i=0; i < this.length; i++)
-      values_as_pretty_string.push(Object.toPrettyString(this[i], continue_recursing));
-
-    return '[' + values_as_pretty_string.join(', ') + ']';
+    var pairs = [];
+    for (var p in this) pairs.push(p+':'+Object.toPrettyString(this[p], true));
+    return '{' + pairs.join(', ') + '}';
   }
+
+  Array.prototype.toPrettyString = function(reset){
+    if (Object.toPrettyString.objects.indexOf(this) > -1) return '[...]';
+    Object.toPrettyString.objects.push(this);
+
+    var values = [];
+    for (var i=0; i < this.length; i++) values.push(Object.toPrettyString(this[i], reset));
+    return '[' + values.join(', ') + ']';
+  };
 
   String.prototype.toPrettyString = function(){
     return '"'+this.toString()+'"';
@@ -23,11 +32,8 @@
     return as_string.match(/\[native code\]/) ? this.name : as_string;
   };
 
-  var objects;
-  Object.toPrettyString = function(object, continue_recursing){
-    if (!continue_recursing) objects = [];
-    if (objects.indexOf(object) > -1) return '{...}';
-    objects.push(object)
+  Object.toPrettyString = function(object, reset){
+    if (!reset) Object.toPrettyString.objects = [];
 
     // a special case
     if (object === Object)     return 'Object';
@@ -41,13 +47,17 @@
 
     // Not Plain Objects
     var type = Object.prototype.toString.call(object);
+    if (type === "[object Arguments]") return Array.prototype.toPrettyString.apply(object);
     if (type !== "[object Object]") return type;
 
+    // Looks like array
+    if (typeof object.length === "number")
+      return Array.prototype.toPrettyString.apply(object);
+
     // Plain Objects
-    var pairs = [];
-    for (var p in object) pairs.push(p+':'+Object.toPrettyString(object[p], true));
-    return '{' + pairs.join(', ') + '}';
-  }
+    return plainObjectToPrettyString.call(object, true);
+  };
+  Object.toPrettyString.objects = [];
 
   var print = (typeof console !== "undefined" && typeof console.log === "function") ? console.log : this.print || function(){};
 
