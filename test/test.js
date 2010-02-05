@@ -42,6 +42,7 @@ new SimpleTestSuite(function(test){
     '0',                       '0',
     '[]',                      '[]',
     '{}',                      '{}',
+    '/./',                     '/./',
     'ARGUMENTS_OBJECT',        '[]',
     'ARRAY_LIKE_OBJECT',       '[]',
 

@@ -1,34 +1,40 @@
 // Pretty Printer
 (function() {
 
-  Object.toPrettyStringAsObject = function(object, nested){
+  function skipIfAlreadyTraversed(nested, object, replacement, block){
     if (!nested) Object.toPrettyString.objects = [];
-    if (Object.toPrettyString.objects.indexOf(object) > -1) return '{...}';
+    if (Object.toPrettyString.objects.indexOf(object) > -1) return replacement;
     Object.toPrettyString.objects.push(object);
-
-    var pairs = [];
-    for (var p in object) pairs.push(p+':'+Object.toPrettyString(object[p], true));
+    var return_value = block.call(object, object);
     if (!nested) Object.toPrettyString.objects = [];
-    return '{' + pairs.join(', ') + '}';
+    return return_value;
+  }
+
+  Object.toPrettyStringAsObject = function(object, nested){
+    return skipIfAlreadyTraversed(nested, object, '{...}', function(){
+      var pairs = [];
+      for (var p in object) pairs.push(p+':'+Object.toPrettyString(object[p], true));
+      return '{' + pairs.join(', ') + '}';
+    });
   };
 
   Array.prototype.toPrettyString = function(nested){
-    if (!nested) Object.toPrettyString.objects = [];
-    if (Object.toPrettyString.objects.indexOf(this) > -1) return '[...]';
-    Object.toPrettyString.objects.push(this);
-
-    var values = [];
-    for (var i=0; i < this.length; i++) values.push(Object.toPrettyString(this[i], true));
-    if (!nested) Object.toPrettyString.objects = [];
-    return '[' + values.join(', ') + ']';
+    return skipIfAlreadyTraversed(nested, this, '[...]', function(){
+      var values = [];
+      for (var i=0; i < this.length; i++) values.push(Object.toPrettyString(this[i], true));
+      return '[' + values.join(', ') + ']';
+    });
   };
+
+  function toString(){
+    return this.toString();
+  }
+
+  Number.prototype.toPrettyString = toString
+  RegExp.prototype.toPrettyString = toString
 
   String.prototype.toPrettyString = function(){
     return '"'+this.toString()+'"';
-  };
-
-  Number.prototype.toPrettyString = function(){
-    return this.toString();
   };
 
   Function.prototype.toPrettyString = function(){
