@@ -54,7 +54,7 @@ new SimpleTestSuite(function(test){
 
     '{a: "more", complex:42}', '{a:"more", complex:42}',
     'SELF_REFERENCING_OBJECT', '{self:{...}}',
-    'SELF_REFERENCING_ARRAY',  '[[...]]',
+    'SELF_REFERENCING_ARRAY',  '[[...]]'
   ];
 
   // browser specific tests
@@ -64,13 +64,24 @@ new SimpleTestSuite(function(test){
   );
 
   for (var i=0; i < OBJECTS.length; i += 2) {
-    var evalable = OBJECTS[i], value = OBJECTS[i + 1];
-    test('Object.toPrettyString('+evalable+') === "'+value+'"', function(){
-      var object = eval('('+evalable+')');
-      console.log(evalable, '===', Object.toPrettyString(object));
-      return value instanceof RegExp ?
-        Object.toPrettyString(object).match(value) :
-        Object.toPrettyString(object) === value;
+    var evalable = OBJECTS[i], expected = OBJECTS[i + 1];
+
+    test('Object.toPrettyString('+evalable+') === "'+expected+'"', function(){
+      Object.toPrettyString.objects = [];
+
+      var object = eval('('+evalable+')'), pretty_string = Object.toPrettyString(object);
+
+      var matched = (
+        (expected instanceof RegExp) ? pretty_string.match(expected) : pretty_string === expected
+      );
+
+      if (!matched)
+        console.log('EXPECTED '+pretty_string+' === '+expected);
+
+      cleanedup = Object.toPrettyString.objects.length === 0;
+      if (!cleanedup) console.log('('+evalable+') leaked '+Object.toPrettyString.objects.length+' objects');
+
+      return matched && cleanedup;
     });
   };
 
