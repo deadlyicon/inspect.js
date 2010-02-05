@@ -6,31 +6,45 @@ if (typeof load !== "undefined"){
 
 new SimpleTestSuite(function(test){
 
-  var RECURSIVE_REFERENCE_EXAMPLE = {};
-  RECURSIVE_REFERENCE_EXAMPLE.resursed = RECURSIVE_REFERENCE_EXAMPLE;
+  test('Object.toPrettyString should not cause a recursion error', function(){
+    var a = {is_a:true}; a.a = [a];
+
+    try{
+      Object.toPrettyString(a);
+    }catch(e){
+      return !(e.message === 'Maximum call stack size exceeded' || e.message === 'too much recursion');
+    }
+    return true;
+  });
+
 
   function emptyFunction(){}
 
-  var OBJECTS = [
-    'undefined',              'undefined',
-    'null',                   'null',
-    'true',                   'true',
-    'false',                  'false',
-    'Number',                 'Number',
-    'Array',                  'Array',
-    'Object',                 'Object',
-    '""',                     '""',
-    '"hello"',                '"hello"',
-    '5',                      '5',
-    '12.66',                  '12.66',
-    '[1,2,3]',                '[1, 2, 3]',
-    '{}',                     '{}',
-    '{one: 1}',                '{one:1}',
-    'new String',               '""',
-    '{a: "more", complex:42}', '{a:"more", complex:42}',
-    'emptyFunction',          'function emptyFunction(){}'
+  var COMPLEX_OBJECT = {
+    constructor: function constructor(){ return this; },
+  }
+  COMPLEX_OBJECT.self = COMPLEX_OBJECT;
 
-    // 'RECURSIVE_REFERENCE_EXAMPLE', '{resursed:{...}}'
+  var OBJECTS = [
+    'undefined',               'undefined',
+    'null',                    'null',
+    'true',                    'true',
+    'false',                   'false',
+    'Number',                  'Number',
+    'Array',                   'Array',
+    'Object',                  'Object',
+    '""',                      '""',
+    '"hello"',                 '"hello"',
+    '5',                       '5',
+    '12.66',                   '12.66',
+    '[1,2,3]',                 '[1, 2, 3]',
+    '{}',                      '{}',
+    '{one: 1}',                '{one:1}',
+    'new String',              '""',
+    '{a: "more", complex:42}', '{a:"more", complex:42}',
+    'emptyFunction',           'function emptyFunction(){}',
+    'COMPLEX_OBJECT',          '{constructor:function constructor(){ return this; }, self:{...}}',
+    '{a:emptyFunction, b:emptyFunction}', '{a:function emptyFunction(){}, b:function emptyFunction(){}}'
   ];
 
   // browser specific tests
@@ -47,7 +61,5 @@ new SimpleTestSuite(function(test){
       return Object.toPrettyString(object) === value;
     });
   };
-
-  console.log('\n');
 
 });
