@@ -28,8 +28,8 @@
   };
 
   Function.prototype.toPrettyString = function(){
-    var as_string = Function.prototype.toString.call(this);
-    return as_string.match(/\[native code\]/) ? this.name : as_string;
+    var as_string = Function.prototype.toString.call(this).replace(/^\n|\n$/, '');
+    return as_string.match(/\[native code/) ? this.name : as_string;
   };
 
   Object.toPrettyString = function(object, reset){
