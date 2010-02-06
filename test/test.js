@@ -52,6 +52,9 @@ new SimpleTestSuite(function(test){
     '[1,2,3]',                 '[1, 2, 3]',
     '{one: 1}',                '{one:1}',
     'new String',              '""',
+    '"\\\\n"',                 '"\\\\n"',
+    '"new\\nline"',            '"new\\nline"',
+    '"\\\\\"',              '"\\\\"',
 
     '{a: "more", complex:42}', '{a:"more", complex:42}',
     'SELF_REFERENCING_OBJECT', '{self:{...}}',
@@ -68,7 +71,7 @@ new SimpleTestSuite(function(test){
   for (var i=0; i < OBJECTS.length; i += 2) {
     var evalable = OBJECTS[i], expected = OBJECTS[i + 1];
 
-    test('Object.inspect('+evalable+') === "'+expected+'"', function(){
+    test('Object.inspect('+evalable+') === \''+expected+'\'', function(){
       Object.inspect.objects = [];
 
       var object = eval('('+evalable+')'), inspect_string = Object.inspect(object);

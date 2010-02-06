@@ -33,7 +33,7 @@
   RegExp.prototype.inspect = toString;
 
   String.prototype.inspect = function(){
-    return '"'+this.toString()+'"';
+    return '"'+this.toString().replace(/\\/g, '\\\\').replace(/\n/g, '\\n')+'"';
   };
 
   Function.prototype.inspect = function(){
@@ -55,7 +55,9 @@
     // Not Plain Objects
     var type = Object.prototype.toString.call(object);
     if (type === "[object Arguments]") return Array.prototype.inspect.apply(object);
-    if (type !== "[object Object]") return type;
+    if (type === "[object NodeList]")  return Array.prototype.inspect.apply(object);
+    if (type === "[object Text]")      return String.prototype.inspect.apply(object.nodeValue);
+    if (type !== "[object Object]")    return type;
 
     // Looks like array
     if (typeof object.length === "number")
