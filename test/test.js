@@ -1,5 +1,5 @@
 if (typeof load !== "undefined"){
-  load('../src/pretty_printer.js');
+  load('../src/inspect.js');
   load('../lib/simple_test.js');
   load('../lib/simple_test.simple_reporter.js');
 }
@@ -20,9 +20,9 @@ new SimpleTestSuite(function(test){
 
   var ARRAY_LIKE_OBJECT = {length:0};
 
-  test('Object.toPrettyString should not cause a recursion error', function(){
+  test('Object.inspect should not cause a recursion error', function(){
     try{
-      Object.toPrettyString(SELF_REFERENCING_OBJECT);
+      Object.inspect(SELF_REFERENCING_OBJECT);
     }catch(e){
       return !(e.message === 'Maximum call stack size exceeded' || e.message === 'too much recursion');
     }
@@ -67,10 +67,10 @@ new SimpleTestSuite(function(test){
   for (var i=0; i < OBJECTS.length; i += 2) {
     var evalable = OBJECTS[i], expected = OBJECTS[i + 1];
 
-    test('Object.toPrettyString('+evalable+') === "'+expected+'"', function(){
-      Object.toPrettyString.objects = [];
+    test('Object.inspect('+evalable+') === "'+expected+'"', function(){
+      Object.inspect.objects = [];
 
-      var object = eval('('+evalable+')'), pretty_string = Object.toPrettyString(object);
+      var object = eval('('+evalable+')'), pretty_string = Object.inspect(object);
 
       var matched = (
         (expected instanceof RegExp) ? pretty_string.match(expected) : pretty_string === expected
@@ -79,27 +79,27 @@ new SimpleTestSuite(function(test){
       if (!matched)
         console.log('EXPECTED '+pretty_string+' === '+expected);
 
-      cleanedup = Object.toPrettyString.objects.length === 0;
-      if (!cleanedup) console.log('('+evalable+') leaked '+Object.toPrettyString.objects.length+' objects');
+      cleanedup = Object.inspect.objects.length === 0;
+      if (!cleanedup) console.log('('+evalable+') leaked '+Object.inspect.objects.length+' objects');
 
       return matched && cleanedup;
     });
   };
 
 
-  test('Object.toPrettyString should work on this huge object', function(){
+  test('Object.inspect should work on this huge object', function(){
     var huge_object = {
       array: ['a',2],
       object: {hello:'there'}
     };
     huge_object.array_with_self = [huge_object];
 
-    console.log(Object.toPrettyString(huge_object));
-    return Object.toPrettyString(huge_object) === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
+    console.log(Object.inspect(huge_object));
+    return Object.inspect(huge_object) === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
   });
 
   if (DOM_PRESENT){
-    test('Object.toPrettyString should work on this huge object with DOM nodes', function(){
+    test('Object.inspect should work on this huge object with DOM nodes', function(){
       return true;
     });
   }
