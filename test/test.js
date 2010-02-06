@@ -102,8 +102,6 @@ new SimpleTestSuite(function(test){
   test('Object.inspect should work on this huge object', function(){
     var inspect_string = Object.inspect(HUGE_OBJECT);
 
-    console.log(inspect_string);
-
     return DOM_PRESENT ?
       inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}], elements:[[object HTMLDivElement], [object HTMLSpanElement]]}' :
       inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
