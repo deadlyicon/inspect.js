@@ -60,8 +60,9 @@ new SimpleTestSuite(function(test){
 
   // browser specific tests
   if (DOM_PRESENT) OBJECTS.push(
-    'document',                      '[object HTMLDocument]',
-    'document.createElement("div")', '[object HTMLDivElement]'
+    'document',                       '[object HTMLDocument]',
+    'document.createElement("div")',  '[object HTMLDivElement]',
+    'document.createElement("span")', '[object HTMLSpanElement]'
   );
 
   for (var i=0; i < OBJECTS.length; i += 2) {
@@ -70,14 +71,14 @@ new SimpleTestSuite(function(test){
     test('Object.inspect('+evalable+') === "'+expected+'"', function(){
       Object.inspect.objects = [];
 
-      var object = eval('('+evalable+')'), pretty_string = Object.inspect(object);
+      var object = eval('('+evalable+')'), inspect_string = Object.inspect(object);
 
       var matched = (
-        (expected instanceof RegExp) ? pretty_string.match(expected) : pretty_string === expected
+        (expected instanceof RegExp) ? inspect_string.match(expected) : inspect_string === expected
       );
 
       if (!matched)
-        console.log('EXPECTED '+pretty_string+' === '+expected);
+        console.log('EXPECTED '+inspect_string+' === '+expected);
 
       cleanedup = Object.inspect.objects.length === 0;
       if (!cleanedup) console.log('('+evalable+') leaked '+Object.inspect.objects.length+' objects');
@@ -87,21 +88,25 @@ new SimpleTestSuite(function(test){
   };
 
 
+  var HUGE_OBJECT = {
+    array: ['a',2],
+    object: {hello:'there'}
+  };
+  HUGE_OBJECT.array_with_self = [HUGE_OBJECT];
+
+  if (DOM_PRESENT) HUGE_OBJECT.elements = [
+    document.createElement("div"),
+    document.createElement("span")
+  ];
+
   test('Object.inspect should work on this huge object', function(){
-    var huge_object = {
-      array: ['a',2],
-      object: {hello:'there'}
-    };
-    huge_object.array_with_self = [huge_object];
+    var inspect_string = Object.inspect(HUGE_OBJECT);
 
-    console.log(Object.inspect(huge_object));
-    return Object.inspect(huge_object) === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
+    console.log(inspect_string);
+
+    return DOM_PRESENT ?
+      inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}], elements:[[object HTMLDivElement], [object HTMLSpanElement]]}' :
+      inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
   });
-
-  if (DOM_PRESENT){
-    test('Object.inspect should work on this huge object with DOM nodes', function(){
-      return true;
-    });
-  }
 
 });
