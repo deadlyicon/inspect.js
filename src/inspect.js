@@ -29,8 +29,8 @@
     return this.toString();
   }
 
-  Number.prototype.inspect = toString
-  RegExp.prototype.inspect = toString
+  Number.prototype.inspect = toString;
+  RegExp.prototype.inspect = toString;
 
   String.prototype.inspect = function(){
     return '"'+this.toString()+'"';
