@@ -110,4 +110,8 @@ new SimpleTestSuite(function(test){
       inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
   });
 
+  if (DOM_PRESENT) test('Object.inspectAsObject(document) should work', function(){
+    return Object.inspectAsObject(document);
+  });
+
 });

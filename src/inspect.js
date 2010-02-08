@@ -12,7 +12,13 @@
   Object.inspectAsObject = function(object, nested){
     return skipIfAlreadyTraversed(nested, object, '{...}', function(){
       var pairs = [];
-      for (var p in object) pairs.push(p+':'+Object.inspect(object[p], true));
+      for (var p in object){
+        try{
+          pairs.push(p+':'+Object.inspect(object[p], true));
+        }catch(e){
+          pairs.push(p+': <INSPECTION ERROR: '+e.message+'>');
+        }
+      }
       return '{' + pairs.join(', ') + '}';
     });
   };
@@ -20,7 +26,13 @@
   Array.prototype.inspect = function(nested){
     return skipIfAlreadyTraversed(nested, this, '[...]', function(){
       var values = [];
-      for (var i=0; i < this.length; i++) values.push(Object.inspect(this[i], true));
+      for (var i=0; i < this.length; i++){
+        try{
+          values.push(Object.inspect(this[i], true));
+        }catch(e){
+          values.push('<INSPECTION ERROR: '+e.message+'>');
+        }
+      }
       return '[' + values.join(', ') + ']';
     });
   };
@@ -31,40 +43,49 @@
 
   Number.prototype.inspect = toString;
   RegExp.prototype.inspect = toString;
+  Boolean.prototype.inspect = toString;
 
   String.prototype.inspect = function(){
     return '"'+this.toString().replace(/\\/g, '\\\\').replace(/\n/g, '\\n')+'"';
   };
 
+  var NATIVE_CONSTRUCTORS = [Object, Array, String, Number, RegExp];
   Function.prototype.inspect = function(){
-    var as_string = Function.prototype.toString.call(this).replace(/^\n|\n$/, '');
-    return as_string.match(/\[native code/) ? this.name : as_string;
+    if (NATIVE_CONSTRUCTORS.indexOf(this) === -1) return Function.prototype.toString.call(this);
+    return this.name;
+    // var as_string = Function.prototype.toString.call(this).replace(/^\n|\n$/, '');
+    // return as_string.match(/\[native code/) ? this.name : as_string;
   };
 
   Object.inspect = function(object, nested){
-    // a special case
-    if (object === Object)     return 'Object';
+    try{
 
-    // primatives
-    if (object === undefined)  return 'undefined';
-    if (object === null)       return 'null';
-    if (object === true)       return 'true';
-    if (object === false)      return 'false';
-    if (object.inspect) return object.inspect(nested);
+      // primatives
+      if (object === undefined)  return 'undefined';
+      if (object === null)       return 'null';
 
-    // Not Plain Objects
-    var type = Object.prototype.toString.call(object);
-    if (type === "[object Arguments]") return Array.prototype.inspect.apply(object);
-    if (type === "[object NodeList]")  return Array.prototype.inspect.apply(object);
-    if (type === "[object Text]")      return String.prototype.inspect.apply(object.nodeValue);
-    if (type !== "[object Object]")    return type;
+      // a special case
+      if (object === Object)     return 'Object';
 
-    // Looks like array
-    if (typeof object.length === "number")
-      return Array.prototype.inspect.call(object, nested);
+      // most objects
+      if (object.inspect) return object.inspect(nested);
 
-    // Plain Objects
-    return Object.inspectAsObject(object, nested);
+      // Not Plain Objects
+      var type = Object.prototype.toString.call(object);
+      if (type === "[object Arguments]") return Array.prototype.inspect.apply(object);
+      if (type === "[object NodeList]")  return Array.prototype.inspect.apply(object);
+      if (type === "[object Text]")      return String.prototype.inspect.apply(object.nodeValue);
+      if (type !== "[object Object]")    return type;
+
+      // Looks like array
+      if (typeof object.length === "number")
+        return Array.prototype.inspect.call(object, nested);
+
+      // Plain Objects
+      return Object.inspectAsObject(object, nested);
+    }catch(e){
+      return '<INSPECTION ERROR: '+e.message+'>';
+    }
   };
   Object.inspect.objects = [];
 
