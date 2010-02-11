@@ -1,3 +1,12 @@
+/** inspect.js
+ * http://github.com/deadlyicon/inspect.js
+ *
+ * By Jared Grippe <jared@jaredgrippe.com>
+ *
+ * Copyright (c) 2009 Jared Grippe
+ * Licensed under the MIT license.
+ *
+ */
 (function() {
 
   function skipIfAlreadyTraversed(nested, object, replacement, block){
