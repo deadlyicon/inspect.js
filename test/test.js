@@ -7,6 +7,9 @@ if (typeof load !== "undefined"){
 new SimpleTestSuite(function(test){
 
   var DOM_PRESENT = !(typeof document === "undefined");
+  function DOMtest(description, block){
+    if (DOM_PRESENT) test(description, block);
+  }
 
   function emptyFunction(){}
 
@@ -110,7 +113,11 @@ new SimpleTestSuite(function(test){
       inspect_string === '{array:["a", 2], object:{hello:"there"}, array_with_self:[{...}]}';
   });
 
-  if (DOM_PRESENT) test('Object.inspectAsObject(document) should work', function(){
+  DOMtest('Object.inspectAsObject(document) should work', function(){
+    return Object.inspectAsObject(document);
+  });
+
+  DOMtest('Object.inspectAsObject(document) should work', function(){
     return Object.inspectAsObject(document);
   });
 
