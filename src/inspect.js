@@ -7,7 +7,9 @@
  * Licensed under the MIT license.
  *
  */
-(function() {
+(function(exports) {
+
+
 
   function skipIfAlreadyTraversed(nested, object, replacement, block){
     if (!nested) Object.inspect.objects = [];
@@ -98,11 +100,16 @@
   };
   Object.inspect.objects = [];
 
-  var print = (typeof console !== "undefined" && typeof console.log === "function") ? console.log : this.print || function(){};
+  var print = (function(){
+    if (typeof require === "function") return require('sys').print;
+    if (typeof console !== "undefined" && typeof console.log === "function") return console.log;
+    if (typeof print   === "function") return print;
+    return function(){};
+  })();
 
-  this.pp = function(object){
+  exports.pp = function(object){
     print(Object.inspect(object));
   };
 
-})();
+})( typeof exports === "undefined" ? this : exports);
 
